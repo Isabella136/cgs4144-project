@@ -4,6 +4,9 @@ library(dplyr)
 library(tidyverse)
 library("DESeq2")
 library(M3C)
+library(magrittr)
+set.seed(12345)
+
 
 #Getting GEO expression matrix
 cts <- read_excel("GSE65683_Required_SRE.xlsx")
@@ -144,3 +147,34 @@ tsne(cts2, labels = as.factor(labels_tsne), perplex = 10,
      axistextsize = 10, legendtextsize = 15, 
      dotsize = 4, legendtitle = "Sample Groups")
 
+#Differential analysis 
+deseq_object <- DESeq(dds2)
+deseq_results <- results(deseq_object)
+deseq_results <- lfcShrink(
+  deseq_object, 
+  coef = 2, 
+  res = deseq_results 
+)
+
+#Using tidyverse to clean up table (code from example)
+deseq_df <- deseq_results %>%
+  # make into data.frame
+  as.data.frame() %>%
+  # the SRE names are row names -- let's make them a column for easy display
+  tibble::rownames_to_column("SRE") %>%
+  # add a column for significance threshold results
+  dplyr::mutate(threshold = padj < 0.05) %>%
+  # sort by statistic -- the highest values will be SREs with
+  # higher expression in samples
+  dplyr::arrange(dplyr::desc(log2FoldChange))
+head(deseq_df)
+
+#Volcano Plot
+volcano_plot <- EnhancedVolcano::EnhancedVolcano(
+  deseq_df,
+  lab = deseq_df$SRE,
+  x = "log2FoldChange",
+  y = "padj",
+  pCutoff = 0.01 # Loosen the cutoff since we supplied corrected p-values
+)
+volcano_plot
