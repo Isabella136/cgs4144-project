@@ -3,6 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyverse)
 library("DESeq2")
+library(M3C)
 
 #Getting GEO expression matrix
 cts <- read_excel("GSE65683_Required_SRE.xlsx")
@@ -136,3 +137,10 @@ ggplot(pcaData2, aes(PC1, PC2, color=X9)) +
   ylab(paste0("PC2: ",percentVar2[2],"% variance")) + 
   coord_fixed() + 
   labs(col='Sample Groups')
+
+#t-SNE Plot
+labels_tsne <- series_matrix2[,"X9"]
+tsne(cts2, labels = as.factor(labels_tsne), perplex = 10, 
+     axistextsize = 10, legendtextsize = 15, 
+     dotsize = 4, legendtitle = "Sample Groups")
+
