@@ -7,7 +7,7 @@
 - Julien Wakim
 
 ## Data
-https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE65683
+https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE68086
 
 ## Scientific question
-Can we identify the fertility in males based on the gene expression?
+Can we determine the presence of cancer based on the gene expression?
