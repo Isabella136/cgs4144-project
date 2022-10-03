@@ -9,6 +9,7 @@ library(org.Hs.eg.db)
 library(topGO)
 library(ComplexHeatmap)
 library(clusterProfiler)
+library(gprofiler2)
 library(enrichplot)
 set.seed(12345)
 
@@ -81,6 +82,7 @@ deseq_df <- deseq_results %>%
   # sort by threshold
   dplyr::arrange(dplyr::desc(threshold))
 
+#Ensembl to Hugo
 mapped_list <- mapIds(
   org.Hs.eg.db, # Replace with annotation package for your organism
   keys = deseq_df$genes,
@@ -99,6 +101,17 @@ volcano_plot <- EnhancedVolcano::EnhancedVolcano(
   y = "padj",
   pCutoff = 0.01 # Loosen the cutoff since we supplied corrected p-values
 )
+
+#Significant Genes
+significant_genes <- c()
+for (i in 1:nrow(deseq_df)){
+  if(is.na(deseq_df[i, "threshold"])){
+    next
+  }
+  if(deseq_df[i, "threshold"] == TRUE){
+    significant_genes <- append(significant_genes, deseq_df[i, "genes"])
+  }
+}
 
 #topGO needs an expression set
 pData <- data.frame(group = series_matrix$X12, 
@@ -176,3 +189,17 @@ Heatmap(mat)
 #mat <- counts(dds, normalized = T)
 #mat.z <- t(apply(mat, 1, scale))
 #colnames(mat.z) <- rownames(coldata)
+
+#gProfiler2
+gProfiler_data <- gost(query = significant_genes, 
+                       organism = "hsapiens", ordered_query = FALSE, 
+                       multi_query = FALSE, significant = TRUE, exclude_iea = FALSE, 
+                       measure_underrepresentation = FALSE, evcodes = FALSE, 
+                       user_threshold = 0.05, correction_method = "g_SCS", 
+                       domain_scope = "annotated", custom_bg = NULL, 
+                       numeric_ns = "", sources = "GO:MF", as_short_link = FALSE)
+head(gProfiler_data$result, 3)
+gostplot(gProfiler_data, capped = TRUE, interactive = FALSE)
+publish_gosttable(gProfiler_data, highlight_terms = gProfiler_data$result[c(1:10),],
+                  use_colors = TRUE, 
+                  show_columns = c("source", "term_name", "term_size", "intersection_size"))
