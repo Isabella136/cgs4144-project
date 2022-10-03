@@ -82,7 +82,7 @@ mapped_list <- mapIds(
   org.Hs.eg.db, # Replace with annotation package for your organism
   keys = deseq_df$genes,
   keytype = "ENSEMBL", # Replace with the type of gene identifiers in your data
-  column = "ENTREZID", # The type of gene identifiers you would like to map to
+  column = "SYMBOL", # The type of gene identifiers you would like to map to
   multiVals = "list"
 )
 deseq_df2 <- deseq_df
@@ -117,6 +117,7 @@ temp <- data.frame(p = deseq_df$padj,
                    row.names = deseq_df$genes)
 temp <- temp[row.names(cts), ]
 genelist <- temp$p
+genelist[is.na(genelist)] <- 1
 names(genelist) <- row.names(temp)
 topDiffGenes <- function(allScore) {
   return(allScore < 0.01)
@@ -128,3 +129,6 @@ sampleGOdata <- new("topGOdata",
                     nodeSize = 10,
                     annot = annFUN.org, mapping = "org.Hs.eg.db", ID = "ENSEMBL")
 resultFisher <- runTest(sampleGOdata, algorithm = "classic", statistic = "fisher")
+resultFisher.elim <- runTest(sampleGOdata, algorithm = "elim", statistic = "fisher")
+allRes <- GenTable(sampleGOdata, classicFisher = resultFisher, elimFisher = resultFisher.elim,
+                   orderBy = "elimFisher", ranksOf = "classicFisher", topNodes = 10)
