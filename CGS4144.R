@@ -7,6 +7,9 @@ library(M3C)
 library(magrittr)
 library(org.Hs.eg.db)
 library(topGO)
+library(ComplexHeatmap)
+library(clusterProfiler)
+library(enrichplot)
 set.seed(12345)
 
 #Getting GEO expression matrix
@@ -132,3 +135,44 @@ resultFisher <- runTest(sampleGOdata, algorithm = "classic", statistic = "fisher
 resultFisher.elim <- runTest(sampleGOdata, algorithm = "elim", statistic = "fisher")
 allRes <- GenTable(sampleGOdata, classicFisher = resultFisher, elimFisher = resultFisher.elim,
                    orderBy = "elimFisher", ranksOf = "classicFisher", topNodes = 10)
+
+# clustProfiler
+gene_list <- genelist
+gene_list <- na.omit(gene_list)
+gene_list = sort(gene_list, decreasing=TRUE)
+
+gse <- gseGO(geneList=gene_list, 
+             ont ="BP", 
+             keyType = "ENSEMBL", 
+             nPerm = 10000, 
+             minGSSize = 3, 
+             maxGSSize = 800, 
+             pvalueCutoff = 0.05, 
+             verbose = TRUE, 
+             OrgDb = org.Hs.eg.db, 
+             pAdjustMethod = "none")
+require(DOSE)
+dotplot(gse, showCategory=10, split=".sign") + facet_grid(.~.sign)
+
+# HeatMap
+HM_deseq_df <- deseq_df
+filtered <- deseq_df[deseq_df[2] > 50,]
+filtered <- filtered[abs(filtered[3]) > 2,]
+filtered <- data.frame(filtered)
+rownames(filtered) <- filtered[,1] #makes the literal names of rows the genes
+filtered <- filtered[,-1] #remove first gene column 
+filtered <- filtered[1:(length(filtered)-1)] #remove true/false
+#create matrix so you can create map
+mat <- counts(deseq_object)[rownames(filtered), ]
+mat <- t(apply(mat, 1, scale))
+#coldata <- metadata %>% tibble::column_to_rownames("genes")
+#colnames(mat) <- rownames()
+#map -> Heatmap(mat, cluster_rows = T, cluster_columns = F,
+#columns_labels = colnames(mat), name = "Heat Bar")
+Heatmap(mat)
+#na.omit(HM_deseq_df)
+#HM_deseq_df$genes <- mapIds(org.Hs.eg.db, keys = deseq_df$genes, keytype = "ENSEMBL", column = "ENTREZID")
+#HM_deseq_df.top <- HM_deseq_df[ (HM_deseq_df$baseMean > 50) & (abs(HM_deseq_df$log2FoldChange) > 2), ]
+#mat <- counts(dds, normalized = T)
+#mat.z <- t(apply(mat, 1, scale))
+#colnames(mat.z) <- rownames(coldata)
