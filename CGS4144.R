@@ -173,17 +173,17 @@ require(DOSE)
 dotplot(gse, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
-#gProfiler2
-gProfiler_data <- gost(query = significant_genes, 
+#gProfiler2 Molecular Function
+gProfiler_data_MF <- gost(query = significant_genes, 
                        organism = "hsapiens", ordered_query = FALSE, 
                        multi_query = FALSE, significant = TRUE, exclude_iea = FALSE, 
                        measure_underrepresentation = FALSE, evcodes = FALSE, 
                        user_threshold = 0.05, correction_method = "g_SCS", 
                        domain_scope = "annotated", custom_bg = NULL, 
                        numeric_ns = "", sources = "GO:MF", as_short_link = FALSE)
-head(gProfiler_data$result, 3)
-gostplot(gProfiler_data, capped = TRUE, interactive = FALSE)
-publish_gosttable(gProfiler_data, highlight_terms = gProfiler_data$result[c(1:10),],
+head(gProfiler_data_MF$result, 3)
+gostplot(gProfiler_data_MF, capped = TRUE, interactive = FALSE)
+publish_gosttable(gProfiler_data_MF, highlight_terms = gProfiler_data_MF$result[c(1:10),],
                   use_colors = TRUE, 
                   show_columns = c("source", "term_name", "term_size", "intersection_size"))
 
@@ -209,3 +209,16 @@ Heatmap(mat)
 #               columns_labels = colNames(mat), name = "Heat Bar")
 #Heatmap(mat, cluster_rows=T,cluster_columns=F)
 
+#gProfiler2 Human Phenotype Ontology
+gProfiler_data_HP <- gost(query = significant_genes, 
+                       organism = "hsapiens", ordered_query = FALSE, 
+                       multi_query = FALSE, significant = TRUE, exclude_iea = FALSE, 
+                       measure_underrepresentation = FALSE, evcodes = FALSE, 
+                       user_threshold = 0.05, correction_method = "g_SCS", 
+                       domain_scope = "annotated", custom_bg = NULL, 
+                       numeric_ns = "", sources = "HP", as_short_link = FALSE)
+head(gProfiler_data_HP$result, 3)
+gostplot(gProfiler_data_HP, capped = TRUE, interactive = FALSE)
+publish_gosttable(gProfiler_data_HP, highlight_terms = gProfiler_data_HP$result[c(1:10),],
+                  use_colors = TRUE, 
+                  show_columns = c("source", "term_name", "term_size", "intersection_size"))
