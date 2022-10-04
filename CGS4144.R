@@ -112,13 +112,7 @@ for (i in 1:nrow(deseq_df)){
     significant_genes <- append(significant_genes, deseq_df[i, "genes"])
   }
 }
-genelist <- c()
-j = 1
-for (i in 1:nrow(deseq_df)){
-  if (deseq_df[i, "genes"] == significant_genes[j]){
-    genelist <- append(genelist, deseq_df[i, "padj"])
-  }
-}
+
 
 #topGO needs an expression set
 pData <- data.frame(group = series_matrix$X12, 
@@ -135,13 +129,17 @@ exprSet <- ExpressionSet(assayData=as.matrix(cts2),
                          phenoData=phenoData)
 
 #vector of gene names and p-values
-temp <- data.frame(p = deseq_df$padj, 
-                   zeros = 0,
-                   row.names = deseq_df$genes)
-temp <- temp[row.names(cts), ]
-genelist <- temp$p
-genelist[is.na(genelist)] <- 1
-names(genelist) <- row.names(temp)
+genelist <- c()
+j = 1
+for (i in 1:nrow(deseq_df)){
+  if (j > length(significant_genes))
+    break
+  if (deseq_df[i, "genes"] == significant_genes[j]){
+    genelist <- append(genelist, deseq_df[i, "padj"])
+    j = j+1
+  }
+}
+names(genelist) <- significant_genes
 topDiffGenes <- function(allScore) {
   return(allScore < 0.01)
 }
@@ -175,21 +173,21 @@ require(DOSE)
 dotplot(gse, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 # HeatMap
-HM_deseq_df <- deseq_df
-filtered <- deseq_df[deseq_df[2] > 50,]
-filtered <- filtered[abs(filtered[3]) > 2,]
-filtered <- data.frame(filtered)
-rownames(filtered) <- filtered[,1] #makes the literal names of rows the genes
-filtered <- filtered[,-1] #remove first gene column 
-filtered <- filtered[1:(length(filtered)-1)] #remove true/false
+#HM_deseq_df <- deseq_df
+#filtered <- deseq_df[deseq_df[2] > 50,]
+#filtered <- filtered[abs(filtered[3]) > 2,]
+#filtered <- data.frame(filtered)
+#rownames(filtered) <- filtered[,1] #makes the literal names of rows the genes
+#filtered <- filtered[,-1] #remove first gene column 
+#filtered <- filtered[1:(length(filtered)-1)] #remove true/false
 #create matrix so you can create map
-mat <- counts(deseq_object)[rownames(filtered), ]
-mat <- t(apply(mat, 1, scale))
+#mat <- counts(deseq_object)[rownames(filtered), ]
+#mat <- t(apply(mat, 1, scale))
 #coldata <- metadata %>% tibble::column_to_rownames("genes")
 #colnames(mat) <- rownames()
 #map -> Heatmap(mat, cluster_rows = T, cluster_columns = F,
 #columns_labels = colnames(mat), name = "Heat Bar")
-Heatmap(mat)
+#Heatmap(mat)
 #na.omit(HM_deseq_df)
 #HM_deseq_df$genes <- mapIds(org.Hs.eg.db, keys = deseq_df$genes, keytype = "ENSEMBL", column = "ENTREZID")
 #HM_deseq_df.top <- HM_deseq_df[ (HM_deseq_df$baseMean > 50) & (abs(HM_deseq_df$log2FoldChange) > 2), ]
