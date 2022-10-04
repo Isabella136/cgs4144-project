@@ -83,24 +83,24 @@ deseq_df <- deseq_results %>%
   dplyr::arrange(dplyr::desc(threshold))
 
 #Ensembl to Hugo
-mapped_list <- mapIds(
-  org.Hs.eg.db, # Replace with annotation package for your organism
-  keys = deseq_df$genes,
-  keytype = "ENSEMBL", # Replace with the type of gene identifiers in your data
-  column = "SYMBOL", # The type of gene identifiers you would like to map to
-  multiVals = "list"
-)
-deseq_df2 <- deseq_df
-deseq_df2$genes <-mapped_list[deseq_df$genes]
+#mapped_list <- mapIds(
+#  org.Hs.eg.db, # Replace with annotation package for your organism
+#  keys = deseq_df$genes,
+#  keytype = "ENSEMBL", # Replace with the type of gene identifiers in your data
+#  column = "SYMBOL", # The type of gene identifiers you would like to map to
+#  multiVals = "list"
+#)
+#deseq_df2 <- deseq_df
+#deseq_df2$genes <-mapped_list[deseq_df$genes]
 
 #Volcano Plot
-volcano_plot <- EnhancedVolcano::EnhancedVolcano(
-  deseq_df,
-  lab = deseq_df2$genes,
-  x = "log2FoldChange",
-  y = "padj",
-  pCutoff = 0.01 # Loosen the cutoff since we supplied corrected p-values
-)
+#volcano_plot <- EnhancedVolcano::EnhancedVolcano(
+#  deseq_df,
+#  lab = deseq_df2$genes,
+#  x = "log2FoldChange",
+#  y = "padj",
+#  pCutoff = 0.01 # Loosen the cutoff since we supplied corrected p-values
+#)
 
 #Significant Genes
 significant_genes <- c()
@@ -110,6 +110,13 @@ for (i in 1:nrow(deseq_df)){
   }
   if(deseq_df[i, "threshold"] == TRUE){
     significant_genes <- append(significant_genes, deseq_df[i, "genes"])
+  }
+}
+genelist <- c()
+j = 1
+for (i in 1:nrow(deseq_df)){
+  if (deseq_df[i, "genes"] == significant_genes[j]){
+    genelist <- append(genelist, deseq_df[i, "padj"])
   }
 }
 
