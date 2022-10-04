@@ -172,28 +172,6 @@ gse <- gseGO(geneList=gene_list,
 require(DOSE)
 dotplot(gse, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
-# HeatMap
-#HM_deseq_df <- deseq_df
-#filtered <- deseq_df[deseq_df[2] > 50,]
-#filtered <- filtered[abs(filtered[3]) > 2,]
-#filtered <- data.frame(filtered)
-#rownames(filtered) <- filtered[,1] #makes the literal names of rows the genes
-#filtered <- filtered[,-1] #remove first gene column 
-#filtered <- filtered[1:(length(filtered)-1)] #remove true/false
-#create matrix so you can create map
-#mat <- counts(deseq_object)[rownames(filtered), ]
-#mat <- t(apply(mat, 1, scale))
-#coldata <- metadata %>% tibble::column_to_rownames("genes")
-#colnames(mat) <- rownames()
-#map -> Heatmap(mat, cluster_rows = T, cluster_columns = F,
-#columns_labels = colnames(mat), name = "Heat Bar")
-#Heatmap(mat)
-#na.omit(HM_deseq_df)
-#HM_deseq_df$genes <- mapIds(org.Hs.eg.db, keys = deseq_df$genes, keytype = "ENSEMBL", column = "ENTREZID")
-#HM_deseq_df.top <- HM_deseq_df[ (HM_deseq_df$baseMean > 50) & (abs(HM_deseq_df$log2FoldChange) > 2), ]
-#mat <- counts(dds, normalized = T)
-#mat.z <- t(apply(mat, 1, scale))
-#colnames(mat.z) <- rownames(coldata)
 
 #gProfiler2
 gProfiler_data <- gost(query = significant_genes, 
@@ -208,3 +186,26 @@ gostplot(gProfiler_data, capped = TRUE, interactive = FALSE)
 publish_gosttable(gProfiler_data, highlight_terms = gProfiler_data$result[c(1:10),],
                   use_colors = TRUE, 
                   show_columns = c("source", "term_name", "term_size", "intersection_size"))
+
+# HeatMap
+filtered <- deseq_df[deseq_df[2] > 100,]
+filtered <- filtered[abs(filtered[3]) > 2,]
+filtered <- data.frame(filtered)
+filtered <- na.omit(filtered)
+rownames(filtered) <- filtered[,1] #makes the literal names of rows the genes
+filtered <- filtered[,-1] #remove first gene column 
+filtered <- filtered[1:(length(filtered)-1)] #remove true/false
+#create matrix so you can create map
+mat <- counts(dds)[rownames(filtered), ]
+mat <- t(apply(mat, 1, scale))
+coldata <- metadata %>% tibble::column_to_rownames("genes")
+
+Heatmap(mat)
+
+#unused:
+#filtered$genes <- mapIds(org.Hs.eg.db, keys = filtered$genes, keytype = "ENSEMBL", column = "SYMBOL", multiVals = "list")
+#colnames(mat) <- rownames(coldata)
+#map -> Heatmap(mat, cluster_rows = T, cluster_columns = F,
+#               columns_labels = colNames(mat), name = "Heat Bar")
+#Heatmap(mat, cluster_rows=T,cluster_columns=F)
+
