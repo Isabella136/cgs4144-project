@@ -14,6 +14,7 @@ library(enrichplot)
 library(mclust)
 library(cluster)
 library(ConsensusClusterPlus)
+library(ClusterR)
 
 set.seed(12345)
 
@@ -48,14 +49,17 @@ series_matrix_set_up <- function() {
   return(series_matrix)
 }
 
-PCA_plot <- function() {
+deseqdata <- function() {
   colnames(cts) = rownames(series_matrix)
   dds <- DESeqDataSetFromMatrix(countData = cts,
                                 colData = series_matrix,
                                 design = ~ X12)
+  return(dds)
+}
+
+PCA_plot <- function() {
   vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
   plotPCA(vsd, intgroup=c("X12"))
-  return(dds)
 }
 
 tSNE_plot <- function() {
@@ -226,9 +230,20 @@ gProfiler2_HP <- function() {
                     show_columns = c("source", "term_name", "term_size", "intersection_size"))
 }
 
-clustering <- function() {
-  cluster_data_input <- data.frame(baseMean = deseq_df$baseMean[1:5000], row.names = deseq_df$genes[1:5000])
-  gaussian5000 <- Mclust(cluster_data_input)
-  pam5000 <- pam(cluster_data_input, 10)
-  ccplus5000 <- ConsensusClusterPlus(data.matrix(cluster_data_input))
+clustering <- function(genesAmt) {
+  cluster_data_input <- data.frame(cts[deseq_df$genes[1:genesAmt],], row.names = deseq_df$genes[1:genesAmt])
+  gaussian <- Mclust(cluster_data_input, G=9)
+  pam <- pam(cluster_data_input, 9)
+  ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input),maxK=9)
+  kmeans <- kmeans(cluster_data_input, centers=9)
+  return(list(gaussian, pam, ccplus, kmeans))
 }
+
+series_matrix <- series_matrix_set_up()
+dds <- deseqdata()
+deseq_df <- differential_analysis()
+cluster5000 <- clustering(5000)
+cluster10 <- clustering(10)
+cluster100 <- clustering(100)
+cluster1000 <- clustering(1000)
+cluster10000 <- clustering(10000)
