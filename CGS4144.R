@@ -232,10 +232,10 @@ gProfiler2_HP <- function() {
 
 clustering <- function(genesAmt) {
   cluster_data_input <- data.frame(cts[deseq_df$genes[1:genesAmt],], row.names = deseq_df$genes[1:genesAmt])
-  gaussian <- Mclust(cluster_data_input, G=9)
-  pam <- pam(cluster_data_input, 9)
-  ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input),maxK=9)
-  kmeans <- kmeans(cluster_data_input, centers=9)
+  gaussian <- Mclust(cluster_data_input)
+  pam <- pam(cluster_data_input, 6)
+  ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input))
+  kmeans <- kmeans(cluster_data_input, centers=6)
   return(list(gaussian, pam, ccplus, kmeans))
 }
 
