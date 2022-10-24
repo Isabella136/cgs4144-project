@@ -230,18 +230,18 @@ gProfiler2_HP <- function() {
                     show_columns = c("source", "term_name", "term_size", "intersection_size"))
 }
 
-clustering <- function(genesAmt,clusterAmt) {
+clustering <- function(genesAmt) {
   cluster_data_input <- data.frame(cts[deseq_df$genes[1:genesAmt],], row.names = deseq_df$genes[1:genesAmt])
-  pam <- pam(cluster_data_input, clusterAmt)
-  ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input), maxK = 6)
-  kmeans <- kmeans(cluster_data_input, centers=clusterAmt)
+  pam <- pam(t(cluster_data_input), 8)
+  ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input), maxK = 5)
+  kmeans <- kmeans(t(cluster_data_input), centers=7)
   return(list(pam, ccplus, kmeans))
 }
 
 #done seperately due to taking lots of time by itself
 gaussianClusterin <- function(genesAmt) {
   cluster_data_input <- data.frame(cts[deseq_df$genes[1:genesAmt],], row.names = deseq_df$genes[1:genesAmt])
-  gaussian <- Mclust(cluster_data_input)
+  gaussian <- Mclust(t(cluster_data_input))
 }
 
 series_matrix <- series_matrix_set_up()
@@ -251,9 +251,22 @@ gaussian5000 <- gaussianClusterin(5000)
 gaussian10 <- gaussianClusterin(10)
 gaussian100 <- gaussianClusterin(100)
 gaussian1000 <- gaussianClusterin(1000)
-gaussian10000 <- gaussianClusterin(10000)
-cluster5000 <- clustering(5000, 6)
-cluster10 <- clustering(10, 6)
-cluster100 <- clustering(100, 6)
-cluster1000 <- clustering(1000, 6)
-cluster10000 <- clustering(10000, 6)
+#gaussian with 10k genes is too expensive
+#gaussian10000 <- gaussianClusterin(10000)
+cluster5000 <- clustering(5000)
+cluster10 <- clustering(10)
+cluster100 <- clustering(100)
+cluster1000 <- clustering(1000)
+cluster10000 <- clustering(10000)
+cts_with_mean = cts
+cts_with_mean$exp_means = rowMeans(cts[,row.names(series_matrix[series_matrix$X12=='Cancer',])])
+cts_with_mean$control_means = rowMeans(cts[,row.names(series_matrix[series_matrix$X12=='Healthy',])])
+
+clusplot(t(cts[deseq_df$genes[1:5000],]),
+         cluster5000[[3]]$cluster,
+         lines = 0,
+         shade = TRUE,
+         color = TRUE,
+         labels = 2,
+         plotchar = FALSE,
+         span = TRUE)
