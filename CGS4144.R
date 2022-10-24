@@ -230,20 +230,30 @@ gProfiler2_HP <- function() {
                     show_columns = c("source", "term_name", "term_size", "intersection_size"))
 }
 
-clustering <- function(genesAmt) {
+clustering <- function(genesAmt,clusterAmt) {
+  cluster_data_input <- data.frame(cts[deseq_df$genes[1:genesAmt],], row.names = deseq_df$genes[1:genesAmt])
+  pam <- pam(cluster_data_input, clusterAmt)
+  ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input), maxK = 6)
+  kmeans <- kmeans(cluster_data_input, centers=clusterAmt)
+  return(list(pam, ccplus, kmeans))
+}
+
+#done seperately due to taking lots of time by itself
+gaussianClusterin <- function(genesAmt) {
   cluster_data_input <- data.frame(cts[deseq_df$genes[1:genesAmt],], row.names = deseq_df$genes[1:genesAmt])
   gaussian <- Mclust(cluster_data_input)
-  pam <- pam(cluster_data_input, 6)
-  ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input))
-  kmeans <- kmeans(cluster_data_input, centers=6)
-  return(list(gaussian, pam, ccplus, kmeans))
 }
 
 series_matrix <- series_matrix_set_up()
 dds <- deseqdata()
 deseq_df <- differential_analysis()
-cluster5000 <- clustering(5000)
-cluster10 <- clustering(10)
-cluster100 <- clustering(100)
-cluster1000 <- clustering(1000)
-cluster10000 <- clustering(10000)
+gaussian5000 <- gaussianClusterin(5000)
+gaussian10 <- gaussianClusterin(10)
+gaussian100 <- gaussianClusterin(100)
+gaussian1000 <- gaussianClusterin(1000)
+gaussian10000 <- gaussianClusterin(10000)
+cluster5000 <- clustering(5000, 6)
+cluster10 <- clustering(10, 6)
+cluster100 <- clustering(100, 6)
+cluster1000 <- clustering(1000, 6)
+cluster10000 <- clustering(10000, 6)
