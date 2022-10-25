@@ -16,6 +16,7 @@ library(cluster)
 library(ConsensusClusterPlus)
 library(ClusterR)
 library('factoextra')
+library(GGally)
 
 set.seed(12345)
 
@@ -274,3 +275,40 @@ for (i in 1:285) {
   cts_normalized[i] <- (cts[i]/sum(cts[i]))*1000000
 }
 cluster_data_input_normalized <- data.frame(cts_normalized[deseq_df$genes[1:5000],], row.names = deseq_df$genes[1:5000])
+
+#chi-squared test of independence
+healthy_cancer <- series_matrix$X12
+#pam
+cluster_pam_data <- cluster10000[[1]][["clustering"]]
+pam_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_pam_data)
+table(pam_df)
+test_pam <- chisq.test(table(pam_df))
+
+#ccplus
+#cluster_ccplus_data <-
+#ccplus_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_ccplus_data)
+#table(ccplus_df)
+#test_ccplus <- chisq.test(table(ccplus_df))
+
+#kmeans
+cluster_kmeans_data <- cluster10000[[3]][["cluster"]]
+kmeans_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_kmeans_data)
+table(kmeans_df)
+test_kmeans <- chisq.test(table(kmeans_df))
+
+#gaussian
+cluster_gaussian_data <- gaussian5000[["classification"]]
+gaussian_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_gaussian_data)
+table(gaussian_df)
+test_gaussian <- chisq.test(table(gaussian_df))
+
+p_values <- c(test_pam$p.value, #test_ccplus$p.value
+              test_kmeans$p.value, test_gaussian$p.value)
+p.adjust <- p.adjust(p_values)
+
+statistical_test_results <- data.frame("Cluster Method" = c("PAM", #"ConsensusClusterPlus", 
+                                                            "K-Means", "Gaussian"), 
+                                       "Chi-Squared" = c(test_pam$statistic, #test_ccplus$statistic,
+                                                         test_kmeans$statistic, test_gaussian$statistic),
+                                       "P-Values" = p_values, "Adjusted P-Values" = p.adjust)
+
