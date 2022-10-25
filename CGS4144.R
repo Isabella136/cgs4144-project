@@ -15,6 +15,7 @@ library(mclust)
 library(cluster)
 library(ConsensusClusterPlus)
 library(ClusterR)
+library('factoextra')
 
 set.seed(12345)
 
@@ -232,9 +233,9 @@ gProfiler2_HP <- function() {
 
 clustering <- function(genesAmt) {
   cluster_data_input <- data.frame(cts[deseq_df$genes[1:genesAmt],], row.names = deseq_df$genes[1:genesAmt])
-  pam <- pam(t(cluster_data_input), 8)
+  pam <- pam(dist(t(cluster_data_input)), 7, diss=TRUE)
   ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input), maxK = 5)
-  kmeans <- kmeans(t(cluster_data_input), centers=7)
+  kmeans <- kmeans(t(cluster_data_input), centers=5)
   return(list(pam, ccplus, kmeans))
 }
 
@@ -247,13 +248,22 @@ gaussianClusterin <- function(genesAmt) {
 series_matrix <- series_matrix_set_up()
 dds <- deseqdata()
 deseq_df <- differential_analysis()
+cluster_data_input <- data.frame(cts[deseq_df$genes[1:5000],], row.names = deseq_df$genes[1:5000])
+
 gaussian5000 <- gaussianClusterin(5000)
 gaussian10 <- gaussianClusterin(10)
 gaussian100 <- gaussianClusterin(100)
 gaussian1000 <- gaussianClusterin(1000)
 #gaussian with 10k genes is too expensive
 #gaussian10000 <- gaussianClusterin(10000)
+
 cluster5000 <- clustering(5000)
+#clusplot for pam
+plot(cluster5000[[1]], which.plots = 1, main = "PAM Cluster")
+#plot for kmeans clusters
+fviz_cluster(cluster5000[[3]], data = t(cluster_data_input), geom = c("point"), axes = c(1,2), main = "Kmeans Cluster, 1v2")
+fviz_cluster(cluster5000[[3]], data = t(cluster_data_input), geom = c("point"), axes = c(2,3), main = "Kmeans Cluster, 2v3")
+
 cluster10 <- clustering(10)
 cluster100 <- clustering(100)
 cluster1000 <- clustering(1000)
@@ -264,16 +274,3 @@ for (i in 1:285) {
   cts_normalized[i] <- (cts[i]/sum(cts[i]))*1000000
 }
 cluster_data_input_normalized <- data.frame(cts_normalized[deseq_df$genes[1:5000],], row.names = deseq_df$genes[1:5000])
-
-cts_with_mean = cts
-cts_with_mean$exp_means = rowMeans(cts[,row.names(series_matrix[series_matrix$X12=='Cancer',])])
-cts_with_mean$control_means = rowMeans(cts[,row.names(series_matrix[series_matrix$X12=='Healthy',])])
-
-clusplot(t(cts[deseq_df$genes[1:5000],]),
-         cluster5000[[3]]$cluster,
-         lines = 0,
-         shade = TRUE,
-         color = TRUE,
-         labels = 2,
-         plotchar = FALSE,
-         span = TRUE)
