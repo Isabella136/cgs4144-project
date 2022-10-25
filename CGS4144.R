@@ -258,6 +258,13 @@ cluster10 <- clustering(10)
 cluster100 <- clustering(100)
 cluster1000 <- clustering(1000)
 cluster10000 <- clustering(10000)
+
+cts_normalized <- cts
+for (i in 1:285) {
+  cts_normalized[i] <- (cts[i]/sum(cts[i]))*1000000
+}
+cluster_data_input_normalized <- data.frame(cts_normalized[deseq_df$genes[1:5000],], row.names = deseq_df$genes[1:5000])
+
 cts_with_mean = cts
 cts_with_mean$exp_means = rowMeans(cts[,row.names(series_matrix[series_matrix$X12=='Cancer',])])
 cts_with_mean$control_means = rowMeans(cts[,row.names(series_matrix[series_matrix$X12=='Healthy',])])
