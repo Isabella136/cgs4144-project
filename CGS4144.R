@@ -433,7 +433,7 @@ m.ccplus <- cbind(t(cluster_data_input_normalized),cluster5000[[2]][[3]]$consens
 Heatmap(m.pam[,1:5000], name="Scores", left_annotation=ccplus_row_annot, show_row_names = F, show_column_names = F, row_title="Genes", column_title = "Samples")
 
 
-#K-Values
+#K-means
 kmeans_annot <- as.data.frame(cluster10000[[3]][["cluster"]])
 kmeans_annot[,2] <- series_matrix$X12
 colnames(kmeans_annot) <-c('Cluster Groups', 'Treatment Groups')
