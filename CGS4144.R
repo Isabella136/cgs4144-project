@@ -344,43 +344,6 @@ for (i in 1:285) {
 }
 cluster_data_input_normalized <- data.frame(cts_normalized[deseq_df$genes[1:5000],], row.names = deseq_df$genes[1:5000])
 
-#chi-squared test of independence
-healthy_cancer <- series_matrix$X12
-#pam
-cluster_pam_data <- cluster10000[[1]][["clustering"]]
-pam_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_pam_data)
-table(pam_df)
-test_pam <- chisq.test(table(pam_df))
-
-#ccplus
-#cluster_ccplus_data <-
-#ccplus_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_ccplus_data)
-#table(ccplus_df)
-#test_ccplus <- chisq.test(table(ccplus_df))
-
-#kmeans
-cluster_kmeans_data <- cluster10000[[3]][["cluster"]]
-kmeans_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_kmeans_data)
-table(kmeans_df)
-test_kmeans <- chisq.test(table(kmeans_df))
-
-#gaussian
-cluster_gaussian_data <- gaussian5000[["classification"]]
-gaussian_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_gaussian_data)
-table(gaussian_df)
-test_gaussian <- chisq.test(table(gaussian_df))
-
-p_values <- c(test_pam$p.value, #test_ccplus$p.value
-              test_kmeans$p.value, test_gaussian$p.value)
-p.adjust <- p.adjust(p_values)
-
-statistical_test_results <- data.frame("Cluster Method" = c("PAM", #"ConsensusClusterPlus", 
-                                                            "K-Means", "Gaussian"), 
-                                       "Chi-Squared" = c(test_pam$statistic, #test_ccplus$statistic,
-                                                         test_kmeans$statistic, test_gaussian$statistic),
-                                       "P-Values" = p_values, "Adjusted P-Values" = p.adjust)
-ggpairs(statistical_test_results)
-
 #Heatmaps Setup
 cts_normalized <- cts
 for (i in 1:285) {
@@ -446,3 +409,91 @@ kmeans_row_annot <- HeatmapAnnotation(df=kmeans_annot, which='row',
 m.kmeans <- cbind(t(cluster_data_input_normalized),cluster10000[[3]][["cluster"]])
 Heatmap(m.kmeans[,1:5000], name="Scores", left_annotation=kmeans_row_annot, show_row_names = F, show_column_names = F, row_title="Genes", column_title = "Samples")
 
+#chi-squared test of independence
+healthy_cancer <- series_matrix$X12
+#pam
+cluster_pam_data <- cluster10000[[1]][["clustering"]]
+pam_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_pam_data)
+table(pam_df)
+test_pam <- chisq.test(table(pam_df))
+
+ccplus
+cluster_ccplus_data <- cluster10000[[2]][[3]][["consensusClass"]]
+ccplus_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_ccplus_data)
+table(ccplus_df)
+test_ccplus <- chisq.test(table(ccplus_df))
+
+#kmeans
+cluster_kmeans_data <- cluster10000[[3]][["cluster"]]
+kmeans_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_kmeans_data)
+table(kmeans_df)
+test_kmeans <- chisq.test(table(kmeans_df))
+
+#gaussian
+cluster_gaussian_data <- gaussian5000[["classification"]]
+gaussian_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_gaussian_data)
+table(gaussian_df)
+test_gaussian <- chisq.test(table(gaussian_df))
+
+#pam v ccplus
+pam_ccplus_df <- data.frame("Cluster Type" = c("PAM"), "Number of Clusters" = c(cluster_pam_data))
+temp <- data.frame("Cluster Type" = c("ConsensusClusterPlus"), "Number of Clusters" = c(cluster_ccplus_data))
+pam_ccplus_df <- rbind(pam_ccplus_df, temp)
+test_pam_ccplus <- chisq.test(table(pam_ccplus_df))
+
+#pam v kmeans
+pam_kmeans_df <- data.frame("Cluster Type" = c("PAM"), "Number of Clusters" = c(cluster_pam_data))
+temp <- data.frame("Cluster Type" = c("K-Means"), "Number of Clusters" = c(cluster_kmeans_data))
+pam_kmeans_df <- rbind(pam_kmeans_df, temp)
+test_pam_kmeans <- chisq.test(table(pam_kmeans_df))
+
+#pam v gaussian
+pam_gaussian_df <- data.frame("Cluster Type" = c("PAM"), "Number of Clusters" = c(cluster_pam_data))
+temp <- data.frame("Cluster Type" = c("Gaussian"), "Number of Clusters" = c(cluster_gaussian_data))
+pam_gaussian_df <- rbind(pam_gaussian_df, temp)
+test_pam_gaussian <- chisq.test(table(pam_gaussian_df))
+
+#ccplus v kmeans
+ccplus_kmeans_df <- data.frame("Cluster Type" = c("CCPLUS"), "Number of Clusters" = c(cluster_ccplus_data))
+temp <- data.frame("Cluster Type" = c("K-Means"), "Number of Clusters" = c(cluster_kmeans_data))
+ccplus_kmeans_df <- rbind(ccplus_kmeans_df, temp)
+test_ccplus_kmeans <- chisq.test(table(ccplus_kmeans_df))
+
+#ccplus v gaussian
+ccplus_gaussian_df <- data.frame("Cluster Type" = c("CCPLUS"), "Number of Clusters" = c(cluster_ccplus_data))
+temp <- data.frame("Cluster Type" = c("Gaussian"), "Number of Clusters" = c(cluster_gaussian_data))
+ccplus_gaussian_df <- rbind(ccplus_gaussian_df, temp)
+test_ccplus_gaussian <- chisq.test(table(ccplus_gaussian_df))
+
+#kmeans v gaussian
+kmeans_gaussian_df <- data.frame("Cluster Type" = c("K-Means"), "Number of Clusters" = c(cluster_kmeans_data))
+temp <- data.frame("Cluster Type" = c("Gaussian"), "Number of Clusters" = c(cluster_gaussian_data))
+kmeans_gaussian_df <- rbind(kmeans_gaussian_df, temp)
+test_kmeans_gaussian <- chisq.test(table(kmeans_gaussian_df))
+
+
+p_values <- c(test_pam$p.value, test_ccplus$p.value,
+              test_kmeans$p.value, test_gaussian$p.value,
+              test_pam_ccplus$p.value, test_pam_kmeans$p.value,
+              test_pam_gaussian$p.value, test_ccplus_kmeans$p.value,
+              test_ccplus_gaussian$p.value, test_kmeans_gaussian$p.value)
+p_adjust <- p.adjust(p_values)
+
+statistical_test_results <- data.frame( "Cluster Analysis" = c("PAM: Healthy vs. Cancer", "ConsensusClusterPlus: Healthy vs. Cancer", 
+                      "K-Means: Healthy vs. Cancer", "Gaussian: Healthy vs. Cancer", 
+                      "PAM vs. ConsensusClusterPlus", "PAM vs. K-Means", "PAM vs. Gaussian",
+                     "ConsensusClusterPlus vs. K-Means", "ConsensusClusterPlus vs. Gaussian",
+                      "K-Means vs. Gaussian"), 
+  "Chi-Squared" = c(test_pam$statistic, test_ccplus$statistic,
+                    test_kmeans$statistic, test_gaussian$statistic,
+                    test_pam_ccplus$statistic, test_pam_kmeans$statistic,
+                    test_pam_gaussian$statistic, test_ccplus_kmeans$statistic,
+                    test_ccplus_gaussian$statistic, test_kmeans_gaussian$statistic),"P-Values" = p_values,
+  "Adjusted P-Values" = p_adjust)
+
+#Plots
+ggpairs(statistical_test_results)
+temp <- cbind(p_values, pam_df$Number.of.Clusters,ccplus_df$Number.of.Clusters, kmeans_df$Number.of.Clusters, gaussian_df$Number.of.Clusters, p_adjust)
+temp <- data.frame(temp)
+colnames(temp) <- c("P-VALUES", "PAM", "CCPLUS", "K-MEANS", "GAUSSIAN", "ADJUSTED P")
+ggpairs(temp)
