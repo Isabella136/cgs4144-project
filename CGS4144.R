@@ -379,6 +379,7 @@ statistical_test_results <- data.frame("Cluster Method" = c("PAM", #"ConsensusCl
                                        "Chi-Squared" = c(test_pam$statistic, #test_ccplus$statistic,
                                                          test_kmeans$statistic, test_gaussian$statistic),
                                        "P-Values" = p_values, "Adjusted P-Values" = p.adjust)
+ggpairs(statistical_test_results)
 
 #Heatmaps Setup
 cts_normalized <- cts
