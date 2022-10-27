@@ -368,7 +368,7 @@ colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='oran
 gaus_row_annot <- HeatmapAnnotation(df=gaus_annot, which='row',
                                     col=colors)
 m.gaus <- cbind(t(cluster_data_input_normalized), gaussian5000$classification)
-Heatmap(m.gaus[,1:5000], name="Scores", left_annotation=gaus_row_annot, show_row_names = F, show_column_names = F, row_title="Genes", column_title = "Samples")
+Heatmap(m.gaus[,1:5000], name="Scores", left_annotation=gaus_row_annot, show_row_names = F, show_column_names = F, row_title="Samples", column_title = "Genes")
 
 ##PAM
 pam <- pam(dist(t(cluster_data_input)), 7, diss=TRUE)
@@ -381,7 +381,7 @@ colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='oran
 pam_row_annot <- HeatmapAnnotation(df=pam_annot, which='row',
                                    col=colors)
 m.pam <- cbind(t(cluster_data_input_normalized), pam$clustering)
-Heatmap(m.pam[,1:5000], name="Scores", left_annotation=pam_row_annot, show_row_names = F, show_column_names = F, row_title="Genes", column_title = "Samples")
+Heatmap(m.pam[,1:5000], name="Scores", left_annotation=pam_row_annot, show_row_names = F, show_column_names = F, row_title="Samples", column_title = "Genes")
 
 #CCPlus
 ccplus <- ConsensusClusterPlus(data.matrix(cluster_data_input), maxK = 3)
@@ -394,7 +394,7 @@ colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='oran
 ccplus_row_annot <- HeatmapAnnotation(df=ccplus_annot, which='row',
                                       col=colors)
 m.ccplus <- cbind(t(cluster_data_input_normalized),cluster5000[[2]][[3]]$consensusClass)
-Heatmap(m.pam[,1:5000], name="Scores", left_annotation=ccplus_row_annot, show_row_names = F, show_column_names = F, row_title="Genes", column_title = "Samples")
+Heatmap(m.pam[,1:5000], name="Scores", left_annotation=ccplus_row_annot, show_row_names = F, show_column_names = F, row_title="Samples", column_title = "Genes")
 
 
 #K-means
@@ -407,7 +407,7 @@ colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='oran
 kmeans_row_annot <- HeatmapAnnotation(df=kmeans_annot, which='row',
                                       col=colors)
 m.kmeans <- cbind(t(cluster_data_input_normalized),cluster10000[[3]][["cluster"]])
-Heatmap(m.kmeans[,1:5000], name="Scores", left_annotation=kmeans_row_annot, show_row_names = F, show_column_names = F, row_title="Genes", column_title = "Samples")
+Heatmap(m.kmeans[,1:5000], name="Scores", left_annotation=kmeans_row_annot, show_row_names = F, show_column_names = F, row_title="Samples", column_title = "Genes")
 
 #chi-squared test of independence
 healthy_cancer <- series_matrix$X12
