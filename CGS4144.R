@@ -363,7 +363,7 @@ gaus_annot[,2] <- series_matrix$X12
 colnames(gaus_annot) <-c('Cluster Groups', 'Treatment Groups')
 colnames(gaus_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'), 
+                                   '5'='yellow', '6'='gold', '7'='violet'), 
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 gaus_row_annot <- HeatmapAnnotation(df=gaus_annot, which='row',
                                     col=colors)
@@ -376,7 +376,7 @@ pam_annot <- as.data.frame(pam$clustering)
 pam_annot[,2] <- series_matrix$X12
 colnames(pam_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'), 
+                                   '5'='yellow', '6'='gold', '7'='violet'), 
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 pam_row_annot <- HeatmapAnnotation(df=pam_annot, which='row',
                                    col=colors)
@@ -389,7 +389,7 @@ ccplus_annot <- as.data.frame(cluster5000[[2]][[3]]$consensusClass)
 ccplus_annot[,2] <- series_matrix$X12
 colnames(ccplus_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'),
+                                   '5'='yellow', '6'='gold', '7'='violet'), 
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 ccplus_row_annot <- HeatmapAnnotation(df=ccplus_annot, which='row',
                                       col=colors)
@@ -402,7 +402,7 @@ kmeans_annot <- as.data.frame(cluster10000[[3]][["cluster"]])
 kmeans_annot[,2] <- series_matrix$X12
 colnames(kmeans_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'), 
+                                   '5'='yellow', '6'='gold', '7'='violet'), 
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 kmeans_row_annot <- HeatmapAnnotation(df=kmeans_annot, which='row',
                                       col=colors)
