@@ -197,26 +197,25 @@ gProfiler2_MF <- function() {
 }
 
 heatmap <- function() {
-  filtered <- deseq_df[deseq_df[2] > 100,]
-  filtered <- filtered[abs(filtered[3]) > 2,]
-  filtered <- data.frame(filtered)
-  filtered <- na.omit(filtered)
-  rownames(filtered) <- filtered[,1] #makes the literal names of rows the genes
-  filtered <- filtered[,-1] #remove first gene column 
-  filtered <- filtered[1:(length(filtered)-1)] #remove true/false
-  #create matrix so you can create map
-  mat <- counts(dds)[rownames(filtered), ]
-  mat <- t(apply(mat, 1, scale))
-  coldata <- metadata %>% tibble::column_to_rownames("genes")
+  #noise filtering and data set up
+  mat <- counts(dds)[significant_genes, ]
+  mat <- t(mat)
+  mat_normalized <- mat
+  for (i in 1:285) {
+    mat_normalized[i] <- (mat[i]/sum(mat[i]))*1000000
+  }
+  mat_normalized <- mat_normalized + 1
+  mat_normalized <- log2(mat_normalized)
   
-  Heatmap(mat)
+  # setting up annotation for HM
+  hm_annot <- as.data.frame(dds$X12)
+  colnames(hm_annot) <- c('Treatment Groups')
+  colors <- list('Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
+  hm_row_annot <- HeatmapAnnotation(df=hm_annot, which='row', col=colors)
   
-  #unused:
-  #filtered$genes <- mapIds(org.Hs.eg.db, keys = filtered$genes, keytype = "ENSEMBL", column = "SYMBOL", multiVals = "list")
-  #colnames(mat) <- rownames(coldata)
-  #map -> Heatmap(mat, cluster_rows = T, cluster_columns = F,
-  #               columns_labels = colNames(mat), name = "Heat Bar")
-  #Heatmap(mat, cluster_rows=T,cluster_columns=F)
+  Heatmap(mat_normalized,show_row_names = F, show_column_names=F, show_row_dend=F, show_column_dend=F, 
+          row_title="Samples", column_title = "Genes", name="Scores",
+          left_annotation = hm_row_annot)
 }
 
 gProfiler2_HP <- function() {
@@ -342,28 +341,18 @@ cts_normalized <- cts
 for (i in 1:285) {
   cts_normalized[i] <- (cts[i]/sum(cts[i]))*1000000
 }
-cluster_data_input_normalized <- data.frame(cts_normalized[deseq_df$genes[1:5000],], row.names = deseq_df$genes[1:5000])
-
-#Heatmaps Setup
-cts_normalized <- cts
-for (i in 1:285) {
-  cts_normalized[i] <- (cts[i]/sum(cts[i]))*1000000
-}
-
-for (i in 1:285) {
-  cts_normalized[i] <- cts_normalized[i]+1
-}
+cts_normalized <- cts_normalized+1
 cts_normalized <- log2(cts_normalized)
 cluster_data_input_normalized <- data.frame(cts_normalized[deseq_df$genes[1:5000],], row.names = deseq_df$genes[1:5000])
+ 
 
 
 #Gaussian
 gaus_annot <- as.data.frame(gaussian5000$classification)
 gaus_annot[,2] <- series_matrix$X12
 colnames(gaus_annot) <-c('Cluster Groups', 'Treatment Groups')
-colnames(gaus_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='yellow', '6'='gold', '7'='violet'), 
+                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'), 
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 gaus_row_annot <- HeatmapAnnotation(df=gaus_annot, which='row',
                                     col=colors)
@@ -376,7 +365,7 @@ pam_annot <- as.data.frame(pam$clustering)
 pam_annot[,2] <- series_matrix$X12
 colnames(pam_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='yellow', '6'='gold', '7'='violet'), 
+                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'), 
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 pam_row_annot <- HeatmapAnnotation(df=pam_annot, which='row',
                                    col=colors)
@@ -389,7 +378,7 @@ ccplus_annot <- as.data.frame(cluster5000[[2]][[3]]$consensusClass)
 ccplus_annot[,2] <- series_matrix$X12
 colnames(ccplus_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='yellow', '6'='gold', '7'='violet'), 
+                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'),
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 ccplus_row_annot <- HeatmapAnnotation(df=ccplus_annot, which='row',
                                       col=colors)
@@ -402,7 +391,7 @@ kmeans_annot <- as.data.frame(cluster10000[[3]][["cluster"]])
 kmeans_annot[,2] <- series_matrix$X12
 colnames(kmeans_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
-                                   '5'='yellow', '6'='gold', '7'='violet'), 
+                                   '5'='orange', '6'='yellow', '7'='gold', '8'='violet'), 
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 kmeans_row_annot <- HeatmapAnnotation(df=kmeans_annot, which='row',
                                       col=colors)
