@@ -18,8 +18,6 @@ library(ClusterR)
 library('factoextra')
 library(GGally)
 library('ggalluvial')
-library(viridis)
-
 set.seed(12345)
 
 #Getting GEO expression matrix
@@ -280,63 +278,66 @@ cluster10000 <- clustering(10000)
 pam_alluvial <- data.frame(pam10 = cluster10[[1]]$clustering, 
                            pam100 = cluster100[[1]]$clustering,
                            pam1000 = cluster1000[[1]]$clustering,
-                           pam5000 = cluster5000[[1]]$clustering,
+                           Cluster_at_5000_genes = cluster5000[[1]]$clustering,
                            pam10000 = cluster10000[[1]]$clustering)
 ggplot(pam_alluvial,
     aes(axis1 = pam10 , axis2 = pam100, axis3 = pam1000, axis4 = pam10000)) +
-  geom_alluvium(aes(fill = pam5000), width = 1/12) +
+  geom_alluvium(aes(fill = Cluster_at_5000_genes), width = 1/12) +
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
   geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
   ggtitle("PAM alluvial") +
-  xlab('Gene Count') +
-  ylab('Sample Count')
+  xlab('Gene Count (log10)') +
+  ylab('Sample Count') +
+  labs(color = 'Cluster at 5000 genes')
 
 #ccplus alluvial
 ccplus_alluvial <- data.frame(cc10 = cluster10[[2]][[3]]$consensusClass, 
                            cc100 = cluster100[[2]][[3]]$consensusClass,
                            cc1000 = cluster1000[[2]][[3]]$consensusClass,
-                           cc5000 = cluster5000[[2]][[3]]$consensusClass,
+                           Cluster_at_5000_genes = cluster5000[[2]][[3]]$consensusClass,
                            cc10000 = cluster10000[[2]][[3]]$consensusClass)
 ggplot(ccplus_alluvial,
        aes(axis1 = cc10 , axis2 = cc100, axis3 = cc1000, axis4 = cc10000)) +
-  geom_alluvium(aes(fill = cc5000), width = 1/12) +
+  geom_alluvium(aes(fill = Cluster_at_5000_genes), width = 1/12) +
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
   geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
   ggtitle("ConsensusClusterPlus alluvial") +
-  xlab('Gene Count') +
-  ylab('Sample Count')
+  xlab('Gene Count (log10)') +
+  ylab('Sample Count') +
+  labs(color = 'Cluster at 5000 genes')
 
 #kmeans alluvial
 kmeans_alluvial <- data.frame(k10 = cluster10[[3]]$cluster, 
                               k100 = cluster100[[3]]$cluster,
                               k1000 = cluster1000[[3]]$cluster,
-                              k5000 = cluster5000[[3]]$cluster,
+                              Cluster_at_5000_genes = cluster5000[[3]]$cluster,
                               k10000 = cluster10000[[3]]$cluster)
 ggplot(kmeans_alluvial,
        aes(axis1 = k10 , axis2 = k100, axis3 = k1000, axis4 = k10000)) +
-  geom_alluvium(aes(fill = k5000), width = 1/12) +
+  geom_alluvium(aes(fill = Cluster_at_5000_genes), width = 1/12) +
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
   geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
   ggtitle("Kmeans alluvial") +
-  xlab('Gene Count') +
-  ylab('Sample Count')
+  xlab('Gene Count (log10)') +
+  ylab('Sample Count') +
+  labs(color = 'Cluster at 5000 genes')
 
 #gaussian alluvial
 gaussian_alluvial <- data.frame(g10 = gaussian10$classification, 
                            g100 = gaussian100$classification,
                            g1000 = gaussian1000$classification,
-                           g5000 = gaussian5000$classification)
+                           Cluster_at_5000_genes = gaussian5000$classification)
 ggplot(gaussian_alluvial,
        aes(axis1 = g10 , axis2 = g100, axis3 = g1000)) +
-  geom_alluvium(aes(fill = g5000), width = 1/12) +
+  geom_alluvium(aes(fill = Cluster_at_5000_genes), width = 1/12) +
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
   geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
   ggtitle("Gaussian alluvial") +
-  xlab('Gene Count') +
-  ylab('Sample Count')
+  xlab('Gene Count (log10)') +
+  ylab('Sample Count') +
+  labs(color = 'Cluster at 5000 genes')
 
-
-
+#Heatmaps Setup
 cts_normalized <- cts
 for (i in 1:285) {
   cts_normalized[i] <- (cts[i]/sum(cts[i]))*1000000
@@ -383,11 +384,11 @@ colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='oran
 ccplus_row_annot <- HeatmapAnnotation(df=ccplus_annot, which='row',
                                       col=colors)
 m.ccplus <- cbind(t(cluster_data_input_normalized),cluster5000[[2]][[3]]$consensusClass)
-Heatmap(m.pam[,1:5000], name="Scores", left_annotation=ccplus_row_annot, show_row_names = F, show_column_names = F, row_title="Samples", column_title = "Genes")
+Heatmap(m.ccplus[,1:5000], name="Scores", left_annotation=ccplus_row_annot, show_row_names = F, show_column_names = F, row_title="Samples", column_title = "Genes")
 
 
 #K-means
-kmeans_annot <- as.data.frame(cluster10000[[3]][["cluster"]])
+kmeans_annot <- as.data.frame(cluster5000[[3]][["cluster"]])
 kmeans_annot[,2] <- series_matrix$X12
 colnames(kmeans_annot) <-c('Cluster Groups', 'Treatment Groups')
 colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='orange', 
@@ -395,25 +396,25 @@ colors <- list('Cluster Groups' =c('1'='red', '2'='blue', '3'='green', '4'='oran
                'Treatment Groups' =c('Cancer'='pink', 'Healthy'='gray'))
 kmeans_row_annot <- HeatmapAnnotation(df=kmeans_annot, which='row',
                                       col=colors)
-m.kmeans <- cbind(t(cluster_data_input_normalized),cluster10000[[3]][["cluster"]])
+m.kmeans <- cbind(t(cluster_data_input_normalized),cluster5000[[3]][["cluster"]])
 Heatmap(m.kmeans[,1:5000], name="Scores", left_annotation=kmeans_row_annot, show_row_names = F, show_column_names = F, row_title="Samples", column_title = "Genes")
 
 #chi-squared test of independence
 healthy_cancer <- series_matrix$X12
 #pam
-cluster_pam_data <- cluster10000[[1]][["clustering"]]
+cluster_pam_data <- cluster5000[[1]][["clustering"]]
 pam_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_pam_data)
 table(pam_df)
 test_pam <- chisq.test(table(pam_df))
 
-ccplus
-cluster_ccplus_data <- cluster10000[[2]][[3]][["consensusClass"]]
+#ccplus
+cluster_ccplus_data <- cluster5000[[2]][[3]][["consensusClass"]]
 ccplus_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_ccplus_data)
 table(ccplus_df)
 test_ccplus <- chisq.test(table(ccplus_df))
 
 #kmeans
-cluster_kmeans_data <- cluster10000[[3]][["cluster"]]
+cluster_kmeans_data <- cluster5000[[3]][["cluster"]]
 kmeans_df <- data.frame("Sample" = healthy_cancer, "Number of Clusters" = cluster_kmeans_data)
 table(kmeans_df)
 test_kmeans <- chisq.test(table(kmeans_df))
